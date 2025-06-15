@@ -88,37 +88,35 @@
 {# --- NOVO CÓDIGO JAVASCRIPT ADICIONADO AQUI --- #}
 {% block scripts %}
 <script>
-    console.log("--- INICIANDO SCRIPT DE TEMPO REAL ---");
+    console.log("--- INICIANDO SCRIPT DE TEMPO REAL (v2) ---");
 
+    // Lógica para determinar o protocolo correto (wss para https, ws para http)
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+
+    // Monta a URL correta, sem HTML
     const ws_url = `<span class="math-inline">\{protocol\}//</span>{window.location.host}/ws/despacho`;
-    console.log("Tentando conectar ao endereço WebSocket:", ws_url);
+
+    console.log("Tentando conectar ao endereço WebSocket:", ws_url); // Para depuração
 
     const socket = new WebSocket(ws_url);
 
     socket.onopen = function(event) {
-        // Se esta mensagem aparecer, a conexão foi um SUCESSO.
         console.log("SUCESSO: Conexão WebSocket aberta e estável.");
-        // Não fazemos nada, apenas esperamos por mensagens.
     };
 
     socket.onmessage = function(event) {
-        // Se esta mensagem aparecer, o servidor nos enviou um aviso.
         console.log("MENSAGEM DO SERVIDOR RECEBIDA:", event.data);
-        // Recarrega a página para mostrar a nova ocorrência.
+        // Força o recarregamento da página para mostrar a nova ocorrência
         location.reload();
     };
 
     socket.onerror = function(error) {
-        // Se esta mensagem aparecer, a conexão falhou.
-        console.error("ERRO: Falha na conexão WebSocket. Verifique o terminal do Uvicorn.", error);
+        console.error("ERRO: Falha na conexão WebSocket.", error);
     };
 
     socket.onclose = function(event) {
-        // Informa que a conexão foi encerrada.
         console.warn("AVISO: Conexão WebSocket foi fechada.");
     };
-
-    console.log("--- FIM DA CONFIGURAÇÃO DO SCRIPT ---");
 </script>
+{% endblock %}
 {% endblock %}
