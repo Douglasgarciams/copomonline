@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Painel de Despacho{% endblock %}
+
+{% block content %}
+    <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Painel de Despacho</h4>
+            <div>
+                <a href="/relatorio/completo" target="_blank" class="btn btn-secondary btn-sm no-print">
+                    Gerar Relatório Completo
+                </a>
+                <form action="/ocorrencias/delete_all" method="post" class="d-inline no-print">
+                    <button type="submit" class="btn btn-danger btn-sm" 
+                            onclick="return confirm('ATENÇÃO! Você tem certeza que deseja excluir TODAS as ocorrências? Esta ação não pode ser desfeita.');">
+                        Excluir Tudo
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped table-hover table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">Protocolo</th>
+                        <th scope="col">Data/Hora</th>
+                        <th scope="col">Viatura</th>
+                        <th scope="col">Fato</th>
+                        <th scope="col">Logradouro</th>
+                        <th scope="col">Batalhão da Área</th>
+                        <th scope="col" class="text-center">Status</th>
+                        <th scope="col" class="text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for oco in ocorrencias %}
+                    <tr>
+                        <th scope="row">
+                            <a href="/ocorrencia_despacho/{{ oco.id }}">{{ oco.protocolo }}</a>
+                        </th>
+                        <td>{{ to_local(oco.data_registro) }}</td>
+                        <td>{{ oco.viatura or '---' }}</td>
+                        <td>{{ oco.fato }}</td>
+                        <td>{{ oco.logradouro }}</td>
+                        <td>{{ oco.batalhao_area or 'N/D' }}</td>
+                        {# Em templates/ocorrencias_view.html, substitua a célula <td> do status por isto: #}
+
+<{# Em templates/ocorrencias_view.html, substitua a célula <td> do status #}
+
+{# Em templates/ocorrencias_view.html, substitua a célula <td> do status por isto: #}
+
+<td class="text-center align-middle">
+    {# --- LÓGICA DE STATUS FINALÍSSIMA, CONFORME SUA REGRA --- #}
+
+    {# Prioridade 1: Delegacia. Se estiver marcado, o status é este. #}
+    {% if oco.para_delegacia %}
+        <span class="badge rounded-pill bg-warning text-dark">Delegacia</span>
+
+    {# Prioridade 2: Concluída. Se não for para delegacia, checa se tem conclusão. #}
+    {% elif oco.conclusao %}
+        <span class="badge rounded-pill bg-success">Concluída</span>
+
+    {# Prioridade 3: Em Andamento. Se não, checa se tem viatura. #}
+    {% elif oco.viatura %}
+        <span class="badge rounded-pill bg-primary">Em Andamento</span>
+
+    {# Estado Padrão: Pendente. #}
+    {% else %}
+        <span class="badge rounded-pill bg-danger">Pendente</span>
+    {% endif %}
+</td>
+                        <td class="text-center align-middle">
+                            <a href="https://www.google.com/maps/search/?api=1&query={{ oco.logradouro | urlencode }}" 
+                               class="btn btn-outline-info btn-sm" 
+                               target="_blank" 
+                               title="Ver endereço no Google Maps">
+                                Mapa
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+{# --- NOVO CÓDIGO JAVASCRIPT ADICIONADO AQUI --- #}
+{% block scripts %}
+<script>
+    console.log("--- INICIANDO SCRIPT DE TEMPO REAL ---");
+
+    const ws_url = `ws://${window.location.host}/ws/despacho`;
+    console.log("Tentando conectar ao endereço WebSocket:", ws_url);
+
+    const socket = new WebSocket(ws_url);
+
+    socket.onopen = function(event) {
+        // Se esta mensagem aparecer, a conexão foi um SUCESSO.
+        console.log("SUCESSO: Conexão WebSocket aberta e estável.");
+        // Não fazemos nada, apenas esperamos por mensagens.
+    };
+
+    socket.onmessage = function(event) {
+        // Se esta mensagem aparecer, o servidor nos enviou um aviso.
+        console.log("MENSAGEM DO SERVIDOR RECEBIDA:", event.data);
+        // Recarrega a página para mostrar a nova ocorrência.
+        location.reload();
+    };
+
+    socket.onerror = function(error) {
+        // Se esta mensagem aparecer, a conexão falhou.
+        console.error("ERRO: Falha na conexão WebSocket. Verifique o terminal do Uvicorn.", error);
+    };
+
+    socket.onclose = function(event) {
+        // Informa que a conexão foi encerrada.
+        console.warn("AVISO: Conexão WebSocket foi fechada.");
+    };
+
+    console.log("--- FIM DA CONFIGURAÇÃO DO SCRIPT ---");
+</script>
+{% endblock %}

@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Registrar Nova Ocorrência{% endblock %}
+
+{% block content %}
+    
+    {% set protocolo = request.query_params.get('protocolo') %}
+    {% if protocolo %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>Sucesso!</strong> Ocorrência registrada com o protocolo: <strong>#{{ protocolo }}</strong>.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+
+    <div class="card shadow-sm mb-5">
+        <div class="card-header text-center">
+            <h4 class="mb-0">Formulário de Nova Ocorrência</h4>
+        </div>
+        <div class="card-body bg-dark">
+            <p class="card-text text-white-50">Preencha os campos abaixo. Campos com * são obrigatórios.</p>
+            <hr>
+            <form action="/ocorrencias_form" method="post">
+                <h5 class="mt-4">Localização</h5>
+                
+                <div class="row align-items-end">
+                    <div class="col-md-8 mb-3">
+                        <label for="bairro" class="form-label">Bairro</label>
+                        <input type="text" class="form-control" id="bairro" name="bairro" placeholder="Digite parte do nome e clique em buscar">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                         <button type="button" class="btn btn-secondary w-100" id="search-bairro-btn">Buscar Bairro</button>
+                    </div>
+                </div>
+                <div id="bairro-results" class="list-group mb-3"></div>
+                
+                {# --- NOVO CAMPO PARA MOSTRAR O BATALHÃO --- #}
+                <div class="mb-3">
+                    <label for="batalhao-area-display" class="form-label">Batalhão da Área</label>
+                    <input type="text" class="form-control" id="batalhao-area-display" readonly disabled>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label for="logradouro" class="form-label">Logradouro*</label>
+                        <input type="text" class="form-control" id="logradouro" name="logradouro" placeholder="Será preenchido pelo CEP" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="referencia" class="form-label">Ponto de Referência</label>
+                    <input type="text" class="form-control" id="referencia" name="referencia" placeholder="Ex: Próximo ao Shopping">
+                </div>
+
+                {# ... O resto do formulário ... #}
+                <h5 class="mt-4">Contato</h5>
+                <div class="row">
+                    <div class="col-md-7 mb-3">
+                        <label for="solicitante" class="form-label">Solicitante</label>
+                        <input type="text" class="form-control" id="solicitante" name="solicitante" placeholder="Nome de quem ligou">
+                    </div>
+                    <div class="col-md-5 mb-3">
+                        <label for="telefone" class="form-label">Telefone*</label>
+                        <input type="text" class="form-control" id="telefone" name="telefone" placeholder="(67) 99999-9999" required>
+                    </div>
+                </div>
+                
+                <h5 class="mt-4">Detalhes da Ocorrência</h5>
+                <div class="mb-3">
+                    <label for="fato" class="form-label">Fato*</label>
+                    <input type="text" class="form-control" id="fato" name="fato" placeholder="Ex: Furto de veículo, Perturbação do sossego" required>
+                </div>
+                <div class="mb-3">
+                    <label for="historico" class="form-label">Histórico*</label>
+                    <textarea class="form-control" id="historico" name="historico" rows="4" placeholder="Descreva em detalhes o que foi relatado pelo solicitante..." required></textarea>
+                </div>
+                <div class="row align-items-center">
+                     <div class="col-md-7 mb-3">
+                        <label for="atendente" class="form-label">Atendente*</label>
+                        <input type="text" class="form-control" id="atendente" name="atendente" placeholder="Seu nome" required>
+                    </div>
+                    <div class="col-md-5 mb-3">
+                        <label class="form-label d-block">Forças a Empenhar</label>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" value="true" id="empenho_pm" name="empenho_pm">
+                            <label class="form-check-label" for="empenho_pm">PM</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" value="true" id="empenho_bm" name="empenho_bm">
+                            <label class="form-check-label" for="empenho_bm">Bombeiros</label>
+                        </div>
+                         <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" value="true" id="empenho_pc" name="empenho_pc">
+                            <label class="form-check-label" for="empenho_pc">Polícia Civil</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-footer bg-transparent text-end border-top-0 pt-4">
+                    <button type="submit" class="btn btn-success btn-lg">Registrar Ocorrência</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // --- LÓGICA DO CEP (JÁ EXISTENTE) ---
+    // ... (código do CEP aqui)
+
+    // --- LÓGICA DE BUSCA DE BAIRRO (ATUALIZADA) ---
+    const searchBtn = document.getElementById('search-bairro-btn');
+    const bairroInput = document.getElementById('bairro');
+    const resultsDiv = document.getElementById('bairro-results');
+    const batalhaoDisplay = document.getElementById('batalhao-area-display'); // Pega o novo campo
+
+    if (searchBtn) {
+        searchBtn.addEventListener('click', () => {
+            const query = bairroInput.value;
+            if (query.length < 3) {
+                alert('Digite pelo menos 3 letras para buscar.');
+                return;
+            }
+            resultsDiv.innerHTML = '<a href="#" class="list-group-item list-group-item-action">Buscando...</a>';
+            batalhaoDisplay.value = ""; // Limpa o campo do batalhão
+
+            fetch(`/api/search-bairros/?q=${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    resultsDiv.innerHTML = ''; 
+                    if (data.length > 0) {
+                        data.forEach(item => { // Agora 'item' é um objeto {bairro: "...", batalhao: "..."}
+                            const a = document.createElement('a');
+                            a.href = '#';
+                            a.className = 'list-group-item list-group-item-action';
+                            a.textContent = item.bairro; // Mostra só o nome do bairro na lista
+                            a.onclick = (e) => {
+                                e.preventDefault();
+                                // Ao clicar, preenche os DOIS campos
+                                bairroInput.value = item.bairro;
+                                batalhaoDisplay.value = item.batalhao;
+                                resultsDiv.innerHTML = ''; // Esconde a lista
+                            };
+                            resultsDiv.appendChild(a);
+                        });
+                    } else {
+                        resultsDiv.innerHTML = '<a href="#" class="list-group-item list-group-item-action list-group-item-danger">Nenhum bairro encontrado.</a>';
+                    }
+                })
+                .catch(error => {
+                    console.error("Erro ao buscar bairros:", error);
+                    resultsDiv.innerHTML = '<a href="#" class="list-group-item list-group-item-action list-group-item-danger">Erro na busca.</a>';
+                });
+        });
+    }
+</script>
+{% endblock %}

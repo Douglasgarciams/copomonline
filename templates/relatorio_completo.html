@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Relatório Completo de Ocorrências{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center no-print mb-3">
+        <h1 class="mb-0">Relatório Completo</h1>
+        <button class="btn btn-primary btn-lg" onclick="window.print()">
+            Imprimir Relatório / Salvar como PDF
+        </button>
+    </div>
+    <hr class="no-print">
+
+    {% for oco in ocorrencias %}
+        <div class="card shadow-sm mb-4" style="page-break-inside: avoid;">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Protocolo #{{ oco.protocolo }}</h5>
+                <span class="badge 
+                    {% if oco.para_delegacia %} bg-warning text-dark
+                    {% elif oco.conclusao %} bg-success
+                    {% else %} bg-danger
+                    {% endif %}">
+                    {% if oco.para_delegacia %}
+                        Delegacia
+                    {% elif oco.conclusao %}
+                        Concluída
+                    {% else %}
+                        Pendente
+                    {% endif %}
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Dados do Atendimento</h6>
+                        <dl class="row">
+                            <dt class="col-5">Registro:</dt>
+                            <dd class="col-7">{{ to_local(oco.data_registro) }}</dd>
+                            <dt class="col-5">Fato:</dt>
+                            <dd class="col-7">{{ oco.fato }}</dd>
+                            <dt class="col-5">Atendente:</dt>
+                            <dd class="col-7">{{ oco.atendente }}</dd>
+                            <dt class="col-5">Solicitante:</dt>
+                            <dd class="col-7">{{ oco.solicitante or '---' }}</dd>
+                            <dt class="col-5">Telefone:</dt>
+                            <dd class="col-7">{{ oco.telefone }}</dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Dados do Despacho</h6>
+                        <dl class="row">
+                            <dt class="col-5">Visualização:</dt>
+                            <dd class="col-7">{{ to_local(oco.hora_visualizacao) or '---' }}</dd>
+                            <dt class="col-5">Analista:</dt>
+                            <dd class="col-7">{{ oco.analista_empenho or '---' }}</dd>
+                            <dt class="col-5">Viatura(s):</dt>
+                            <dd class="col-7">{{ oco.viatura or '---' }}</dd>
+                            
+                            {# --- CÓDIGO CORRIGIDO AQUI --- #}
+                            <dt class="col-5">Texto da Conclusão:</dt>
+                            <dd class="col-7">{{ oco.conclusao or '---' }}</dd>
+
+                            <dt class="col-5">Hora da Conclusão:</dt>
+                            <dd class="col-7">{{ to_local(oco.hora_conclusao) or '---' }}</dd>
+                            {# --------------------------------- #}
+                            
+                            <dt class="col-5">Para Delegacia (Histórico):</dt>
+                            <dd class="col-7">{{ "Sim" if oco.historico_delegacia_flag else "Não" }}</dd>
+
+                            <dt class="col-5">Delegacia Destino (Histórico):</dt>
+                            <dd class="col-7">{{ oco.historico_delegacia_nome or '---' }}</dd>
+                        </dl>
+                    </div>
+                </div>
+                <hr>
+                <h6>Endereço</h6>
+                <p class="card-text">{{ oco.logradouro }}, {{ oco.bairro or 'Bairro não informado' }}{% if oco.referencia %} - {{ oco.referencia }}{% endif %}</p>
+                <hr>
+                <h6>Histórico Completo</h6>
+                <pre class="card-text" style="white-space: pre-wrap; font-family: inherit;">{{ oco.historico }}</pre>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-warning mt-4" role="alert">
+          <h4 class="alert-heading">Relatório Vazio!</h4>
+          <p>Nenhuma ocorrência foi encontrada no banco de dados para gerar o relatório.</p>
+          <hr>
+          <p class="mb-0">Por favor, vá para a tela de <a href="/atendimento" class="alert-link">Atendimento</a> para cadastrar novas ocorrências.</p>
+        </div>
+    {% endfor %}
+{% endblock %}

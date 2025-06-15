@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Despacho Ocorrência #{{ ocorrencia.protocolo }}{% endblock %}
+
+{% block content %}
+    {# CARD 1: MOSTRANDO OS DETALHES DA OCORRÊNCIA (APENAS LEITURA) #}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="mb-0">Ocorrência #{{ ocorrencia.protocolo }}</h4>
+                <small class="text-white-50">Registrada em: {{ to_local(ocorrencia.data_registro) }} por {{ ocorrencia.atendente }}</small>
+            </div>
+            <span class="badge bg-info fs-6">{{ ocorrencia.fato }}</span>
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">Detalhes do Atendimento</h5>
+            <dl class="row mt-3">
+                <dt class="col-sm-3">Logradouro:</dt>
+                <dd class="col-sm-9">{{ ocorrencia.logradouro }}</dd>
+                <dt class="col-sm-3">Bairro:</dt>
+                <dd class="col-sm-9">{{ ocorrencia.bairro or 'Não informado' }}</dd>
+                <dt class="col-sm-3">Referência:</dt>
+                <dd class="col-sm-9">{{ ocorrencia.referencia or 'Não informado' }}</dd>
+                <dt class="col-sm-3">Solicitante:</dt>
+                <dd class="col-sm-9">{{ ocorrencia.solicitante or 'Não informado' }}</dd>
+                <dt class="col-sm-3">Telefone:</dt>
+                <dd class="col-sm-9">{{ ocorrencia.telefone }}</dd>
+                <dt class="col-sm-3">Histórico:</dt>
+                <dd class="col-sm-9"><pre style="white-space: pre-wrap; font-family: inherit;">{{ ocorrencia.historico }}</pre></dd>
+            </dl>
+        </div>
+    </div>
+
+    {# CARD 2: FORMULÁRIO E STATUS DO DESPACHO (EDITÁVEL) #}
+    <div class="card shadow-sm mb-5">
+        <div class="card-header">
+            <h4 class="mb-0">Registrar Ações de Despacho</h4>
+        </div>
+        <div class="card-body">
+            <form action="/ocorrencia_despacho/{{ ocorrencia.id }}/update" method="post">
+    
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label for="viatura" class="form-label">Viatura(s) Empenhada(s):</label>
+            <input type="text" class="form-control" id="viatura" name="viatura" value="{{ ocorrencia.viatura or '' }}" placeholder="Ex: VTR-1501">
+        </div>
+        <div class="col-md-6 mb-3">
+            <label for="analista_empenho" class="form-label">Analista de Empenho:</label>
+            <input type="text" class="form-control" id="analista_empenho" name="analista_empenho" value="{{ ocorrencia.analista_empenho or '' }}">
+        </div>
+    </div>
+    
+    {# --- CAMPO ADICIONADO AQUI --- #}
+    <div class="mb-3">
+        <label for="batalhao_area" class="form-label">Batalhão da Área (Responsável):</label>
+        <select class="form-select" id="batalhao_area" name="batalhao_area">
+            <option value="">-- Sem Batalhão Definido --</option>
+            <option value="1ºBPM" {% if ocorrencia.batalhao_area == '1ºBPM' %}selected{% endif %}>1ºBPM</option>
+            <option value="9ºBPM" {% if ocorrencia.batalhao_area == '9ºBPM' %}selected{% endif %}>9ºBPM</option>
+            <option value="10ºBPM" {% if ocorrencia.batalhao_area == '10ºBPM' %}selected{% endif %}>10ºBPM</option>
+            <option value="11ªCIPM" {% if ocorrencia.batalhao_area == '11ªCIPM' %}selected{% endif %}>11ªCIPM</option>
+            <option value="5ªCIPM" {% if ocorrencia.batalhao_area == '5ªCIPM' %}selected{% endif %}>5ªCIPM</option>
+            <option value="6ª CIPM" {% if ocorrencia.batalhao_area == '6ª CIPM' %}selected{% endif %}>6ª CIPM</option>
+            <option value="10ªCIPM" {% if ocorrencia.batalhao_area == '10ªCIPM' %}selected{% endif %}>10ªCIPM</option>
+            <option value="BPTRAN" {% if ocorrencia.batalhao_area == 'BPTRAN' %}selected{% endif %}>BPTRAN</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label d-block">Forças Empenhadas:</label>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" name="empenho_pm" value="true" id="empenho_pm_despacho" {% if ocorrencia.empenho_pm %}checked{% endif %}>
+            <label class="form-check-label" for="empenho_pm_despacho">PM</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" name="empenho_bm" value="true" id="empenho_bm_despacho" {% if ocorrencia.empenho_bm %}checked{% endif %}>
+            <label class="form-check-label" for="empenho_bm_despacho">Bombeiros</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" name="empenho_pc" value="true" id="empenho_pc_despacho" {% if ocorrencia.empenho_pc %}checked{% endif %}>
+            <label class="form-check-label" for="empenho_pc_despacho">Polícia Civil</label>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="conclusao" class="form-label">Conclusão da Ocorrência:</label>
+        <textarea class="form-control" id="conclusao" name="conclusao" rows="4" placeholder="Descreva a conclusão, se houver.">{{ ocorrencia.conclusao or '' }}</textarea>
+    </div>
+
+    <div class="form-check form-switch my-3">
+        <input class="form-check-input" type="checkbox" role="switch" id="para_delegacia" name="para_delegacia" value="true" {% if ocorrencia.para_delegacia %}checked{% endif %}>
+        <label class="form-check-label" for="para_delegacia">Encaminhar para Delegacia</label>
+    </div>
+    
+    <div id="delegacia-select-div" class="mb-3" style="display: none;">
+        <label for="delegacia_destino" class="form-label">Selecione a Delegacia de Destino:</label>
+        <select class="form-select" id="delegacia_destino" name="delegacia_destino">
+            <option value="">Selecione...</option>
+            <option value="Cepol" {% if ocorrencia.delegacia_destino == 'Cepol' %}selected{% endif %}>Cepol</option>
+            <option value="Depaccentro" {% if ocorrencia.delegacia_destino == 'Depaccentro' %}selected{% endif %}>Depaccentro</option>
+            <option value="Denar" {% if ocorrencia.delegacia_destino == 'Denar' %}selected{% endif %}>Denar</option>
+            <option value="Deam" {% if ocorrencia.delegacia_destino == 'Deam' %}selected{% endif %}>Deam</option>
+            <option value="Derf" {% if ocorrencia.delegacia_destino == 'Derf' %}selected{% endif %}>Derf</option>
+            <option value="Defurv" {% if ocorrencia.delegacia_destino == 'Defurv' %}selected{% endif %}>Defurv</option>
+            <option value="Deaj" {% if ocorrencia.delegacia_destino == 'Deaj' %}selected{% endif %}>Deaj</option>
+            <option value="Dpca" {% if ocorrencia.delegacia_destino == 'Dpca' %}selected{% endif %}>Dpca</option>
+            <option value="Dcat" {% if ocorrencia.delegacia_destino == 'Dcat' %}selected{% endif %}>Dcat</option>
+            <option value="Dcon" {% if ocorrencia.delegacia_destino == 'Dcon' %}selected{% endif %}>Dcon</option>
+            <option value="2ª Delegacia" {% if ocorrencia.delegacia_destino == '2ª Delegacia' %}selected{% endif %}>2ª Delegacia</option>
+            <option value="3ª Delegacia" {% if ocorrencia.delegacia_destino == '3ª Delegacia' %}selected{% endif %}>3ª Delegacia</option>
+            <option value="4ª Delegacia" {% if ocorrencia.delegacia_destino == '4ª Delegacia' %}selected{% endif %}>4ª Delegacia</option>
+            <option value="5ª Delegacia" {% if ocorrencia.delegacia_destino == '5ª Delegacia' %}selected{% endif %}>5ª Delegacia</option>
+            <option value="6ª Delegacia" {% if ocorrencia.delegacia_destino == '6ª Delegacia' %}selected{% endif %}>6ª Delegacia</option>
+            <option value="7ª Delegacia" {% if ocorrencia.delegacia_destino == '7ª Delegacia' %}selected{% endif %}>7ª Delegacia</option>
+        </select>
+    </div>
+    
+    <div class="text-end">
+        <button type="submit" class="btn btn-success btn-lg">Salvar Ações de Despacho</button>
+    </div>
+</form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Pega os elementos do checkbox e do div de seleção
+    const delegaciaCheckbox = document.getElementById('para_delegacia');
+    const delegaciaSelectDiv = document.getElementById('delegacia-select-div');
+
+    // Função para mostrar ou esconder o campo de seleção
+    const toggleDelegaciaSelect = () => {
+        if (delegaciaCheckbox.checked) {
+            delegaciaSelectDiv.style.display = 'block';
+        } else {
+            delegaciaSelectDiv.style.display = 'none';
+        }
+    };
+
+    // Roda a função uma vez quando a página carrega para definir o estado inicial
+    toggleDelegaciaSelect();
+
+    // Adiciona um "escutador" que dispara a função toda vez que o checkbox é clicado
+    delegaciaCheckbox.addEventListener('change', toggleDelegaciaSelect);
+</script>
+{% endblock %}
