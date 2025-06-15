@@ -90,7 +90,8 @@
 <script>
     console.log("--- INICIANDO SCRIPT DE TEMPO REAL ---");
 
-    const ws_url = `ws://${window.location.host}/ws/despacho`;
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const ws_url = `<span class="math-inline">\{protocol\}//</span>{window.location.host}/ws/despacho`;
     console.log("Tentando conectar ao endereço WebSocket:", ws_url);
 
     const socket = new WebSocket(ws_url);
