@@ -17,7 +17,7 @@ print(f"DEBUG: URL DO BANCO DE DADOS CARREGADA -> {DATABASE_URL}")
 # ------------------------------------
 
 # Cria o "motor" do SQLAlchemy.
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL, pool_recycle=300)
 
 # Cria uma classe SessionLocal para criar as sessões com o banco.
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
