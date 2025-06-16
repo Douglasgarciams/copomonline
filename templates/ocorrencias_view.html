@@ -30,8 +30,6 @@
                     <td>{{ oco.viatura or '---' }}</td>
                     <td>{{ oco.fato }}</td>
                     <td>{{ oco.logradouro }}</td>
-                    
-                    {# --- LÓGICA DE STATUS CORRETA E FINAL --- #}
                     <td class="text-center align-middle">
                         {% if oco.para_delegacia %}
                             <span class="badge rounded-pill bg-warning text-dark">Delegacia</span>
@@ -43,7 +41,6 @@
                             <span class="badge rounded-pill bg-danger">Pendente</span>
                         {% endif %}
                     </td>
-
                     <td class="text-center align-middle">
                         <a href="https://www.google.com/maps/search/?api=1&query={{ oco.logradouro | urlencode }}" 
                            class="btn btn-outline-info btn-sm" 
@@ -57,10 +54,12 @@
             </tbody>
         </table>
     </div>
+    
+    {# --- SEÇÃO DO RODAPÉ COM OS BOTÕES QUE ESTAVA FALTANDO --- #}
     <div class="card-footer text-end no-print">
-        <button class="btn btn-secondary" onclick="window.print()">
-            Imprimir / Gerar PDF
-        </button>
+        <a href="/relatorio/completo" target="_blank" class="btn btn-secondary">
+            Gerar Relatório Completo
+        </a>
         <form action="/ocorrencias/delete_all" method="post" class="d-inline">
             <button type="submit" class="btn btn-danger" 
                     onclick="return confirm('ATENÇÃO! Você tem certeza que deseja excluir TODAS as ocorrências? Esta ação não pode ser desfeita.');">
@@ -68,6 +67,7 @@
             </button>
         </form>
     </div>
+    {# ------------------------------------------------------------ #}
 </div>
 {% endblock %}
 
