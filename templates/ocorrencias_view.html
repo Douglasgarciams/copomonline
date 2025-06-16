@@ -30,7 +30,11 @@
                     <td>{{ to_local(oco.data_registro) }}</td>
                     <td>{{ oco.viatura or '---' }}</td>
                     <td>{{ oco.fato }}</td>
-                    <td>{{ oco.logradouro }}</td>
+                    <td>
+                        <a href="https://www.google.com/maps/search/?api=1&query={{ oco.logradouro | urlencode }}" target="_blank">
+                            {{ oco.logradouro }}
+                        </a>
+                    </td>
 
                     <td>{{ oco.batalhao_area or 'N/D' }}</td>
 
