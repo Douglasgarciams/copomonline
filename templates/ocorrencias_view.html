@@ -16,6 +16,7 @@
                     <th scope="col">Viatura</th>
                     <th scope="col">Fato</th>
                     <th scope="col">Logradouro</th>
+                    <th scope="col">Batalhão da Área</th>
                     <th scope="col" class="text-center">Status</th>
                     <th scope="col" class="text-center">Ações</th>
                 </tr>
@@ -30,6 +31,9 @@
                     <td>{{ oco.viatura or '---' }}</td>
                     <td>{{ oco.fato }}</td>
                     <td>{{ oco.logradouro }}</td>
+
+                    <td>{{ oco.batalhao_area or 'N/D' }}</td>
+                    
                     <td class="text-center align-middle">
                         {% if oco.para_delegacia %}
                             <span class="badge rounded-pill bg-warning text-dark">Delegacia</span>
