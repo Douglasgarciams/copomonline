@@ -33,7 +33,7 @@
                     <td>{{ oco.logradouro }}</td>
 
                     <td>{{ oco.batalhao_area or 'N/D' }}</td>
-                    
+
                     <td class="text-center align-middle">
                         {% if oco.para_delegacia %}
                             <span class="badge rounded-pill bg-warning text-dark">Delegacia</span>
@@ -46,7 +46,7 @@
                         {% endif %}
                     </td>
                     <td class="text-center align-middle">
-                        <a href="https://www.google.com/maps/search/?api=1&query={{ oco.logradouro | urlencode }}" 
+                        <a href="https://www.google.com/maps/d/u/0/edit?mid=1vpFeS_nz1rR8I9pqOhMsG3xbq2j4dVs&usp=sharing" 
                            class="btn btn-outline-info btn-sm" 
                            target="_blank" 
                            title="Ver endereço no Google Maps">
