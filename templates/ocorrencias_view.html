@@ -30,11 +30,7 @@
                     <td>{{ to_local(oco.data_registro) }}</td>
                     <td>{{ oco.viatura or '---' }}</td>
                     <td>{{ oco.fato }}</td>
-                    <td>
-                        <a href="https://www.google.com/maps/search/?api=1&query={{ oco.logradouro | urlencode }}" target="_blank">
-                            {{ oco.logradouro }}
-                        </a>
-                    </td>
+                    <td>{{ oco.logradouro }}</td>
 
                     <td>{{ oco.batalhao_area or 'N/D' }}</td>
 
@@ -50,7 +46,7 @@
                         {% endif %}
                     </td>
                     <td class="text-center align-middle">
-                        <a href="https://www.google.com/maps/d/u/0/edit?mid=1vpFeS_nz1rR8I9pqOhMsG3xbq2j4dVs&usp=sharing" 
+                        <a href="https://www.google.com/maps/search/?api=1&query={{ oco.logradouro | urlencode }}"> 
                            class="btn btn-outline-info btn-sm" 
                            target="_blank" 
                            title="Ver endereço no Google Maps">
